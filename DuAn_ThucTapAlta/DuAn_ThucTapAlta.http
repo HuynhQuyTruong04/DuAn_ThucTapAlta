@@ -1,0 +1,6 @@
+@DuAn_ThucTapAlta_HostAddress = http://localhost:5235
+
+GET {{DuAn_ThucTapAlta_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
