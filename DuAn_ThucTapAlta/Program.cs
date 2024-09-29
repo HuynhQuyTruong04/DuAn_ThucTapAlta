@@ -1,4 +1,14 @@
+using DuAn_ThucTapAlta.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// L?y chu?i k?t n?i t? appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// ??ng ký DbContext v?i DI
+builder.Services.AddDbContext<ApplicationDBContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Add services to the container.
 
