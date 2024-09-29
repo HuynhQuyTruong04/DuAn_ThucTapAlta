@@ -8,6 +8,7 @@ namespace DuAn_ThucTapAlta.Data
     {
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Flight> Flights { get; set; }
         public DbSet<Document> Documents { get; set; }
         public DbSet<DocumentVersion> DocumentVersions { get; set; }
@@ -18,18 +19,31 @@ namespace DuAn_ThucTapAlta.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>().HasKey(e => e.UserId);
-            modelBuilder.Entity<Flight>().HasKey(e => e.FlightId);
-            modelBuilder.Entity<Document>().HasKey(e => e.DocumentId);
-            modelBuilder.Entity<DocumentVersion>().HasKey(e => e.VersionId);
-            modelBuilder.Entity<Permission>().HasKey(e => e.PermissionId);
-            modelBuilder.Entity<WorkGroup>().HasKey(e => e.GroupId);
+            modelBuilder.Entity<User>().HasKey(u => u.UserId);
+            modelBuilder.Entity<Role>().HasKey(r => r.RoleId);
+            modelBuilder.Entity<Flight>().HasKey(f => f.FlightId);
+            modelBuilder.Entity<Document>().HasKey(d => d.DocumentId);
+            modelBuilder.Entity<DocumentVersion>().HasKey(dv => dv.VersionId);
+            modelBuilder.Entity<Permission>().HasKey(p => p.PermissionId);
+            modelBuilder.Entity<WorkGroup>().HasKey(w => w.GroupId);
 
             //Quan he 1 - N, moi WorkGroup co nhieu User
             modelBuilder.Entity<User>()
                 .HasOne<WorkGroup>(e => e.WorkGroup)
                 .WithMany(wg => wg.Users)
                 .HasForeignKey(e => e.GroupID);
+
+            //Quan he 1 - N, mot Role co nhieu User
+            modelBuilder.Entity<User>()
+                .HasOne<Role>(u => u.Role)
+                .WithMany(r => r.Users) 
+                .HasForeignKey(u => u.RoleId);
+
+            //Quan he 1 - N, mot User co the tai len nhieu DocumentVersion
+            modelBuilder.Entity<DocumentVersion>()
+                .HasOne<User>(d => d.User)
+                .WithMany(u => u.DocumentVersions)
+                .HasForeignKey(d => d.UserId);
 
             //Quan he 1 - N, moi Flight co nhieu Document
             modelBuilder.Entity<Document>()
@@ -50,4 +64,4 @@ namespace DuAn_ThucTapAlta.Data
                 .UsingEntity(j => j.ToTable("WorkGroupPermissions")); // Bảng trung gian cho quan hệ N-N
         }
     }
-}
+}   

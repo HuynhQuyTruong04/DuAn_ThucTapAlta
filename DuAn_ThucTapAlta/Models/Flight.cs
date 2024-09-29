@@ -6,7 +6,8 @@ namespace DuAn_ThucTapAlta.Models
     {
         public int FlightId { get; set; }
         public string FlightNo { get; set; } //so hieu chuyen bay
-        public string Route {  get; set; } //tuyen bay
+        public string Departure {  get; set; } //noi khoi hanh
+        public string Destination { get; set; } //noi den
         public DateTime DepartureDate { get; set; } //ngay khoi hanh
         public string Status { get; set; }
 
