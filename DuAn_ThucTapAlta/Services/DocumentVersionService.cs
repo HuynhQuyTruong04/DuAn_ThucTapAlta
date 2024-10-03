@@ -36,5 +36,17 @@ namespace DuAn_ThucTapAlta.Services
             await _context.SaveChangesAsync();
             return documentVersion;
         }
+
+        public async Task<bool> DeleteDocumentVersionAsync(int versionId)
+        {
+            var documentVersion = await _context.DocumentVersions.FindAsync(versionId);
+            if (documentVersion == null)
+            {
+                return false;
+            }
+            _context.DocumentVersions.Remove(documentVersion);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

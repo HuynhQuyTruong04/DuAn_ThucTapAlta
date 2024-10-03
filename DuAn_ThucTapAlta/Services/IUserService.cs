@@ -10,5 +10,7 @@ namespace DuAn_ThucTapAlta.Services
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User> CreateUserAsync (User user);
         Task<User> UpdateUserAsync(User user);
+        Task<bool> DeleteUserAsync(int userId);
+        bool ValidateEmailDomain(string email);
     }
 }

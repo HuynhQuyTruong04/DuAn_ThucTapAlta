@@ -36,5 +36,17 @@ namespace DuAn_ThucTapAlta.Services
             await _context.SaveChangesAsync();
             return permission;
         }
+
+        public async Task<bool> DeletePermissionAsync(int permissionId)
+        {
+            var permission = await _context.Permissions.FindAsync(permissionId);
+            if (permission == null)
+            {
+                return false;
+            }
+            _context.Permissions.Remove(permission);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

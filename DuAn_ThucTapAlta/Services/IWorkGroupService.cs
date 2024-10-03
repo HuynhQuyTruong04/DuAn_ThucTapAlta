@@ -8,5 +8,6 @@ namespace DuAn_ThucTapAlta.Services
         Task<IEnumerable<WorkGroup>> GetAllWorkGroupsAsync();
         Task<WorkGroup> CreateWorkGroupAsync(WorkGroup workGroup);
         Task<WorkGroup> UpdateWorkGroupAsync(WorkGroup workGroup);
+        Task<bool> DeleteWorkGroupAsync(int workGroupId);
     }
 }

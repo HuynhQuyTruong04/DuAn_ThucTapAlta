@@ -35,5 +35,17 @@ namespace DuAn_ThucTapAlta.Services
             await _context.SaveChangesAsync();
             return flight;
         }
+
+        public async Task<bool> DeleteFlightAsync(int flightId)
+        {
+            var flight = await _context.Flights.FindAsync(flightId);
+            if (flight == null)
+            {
+                return false;
+            }
+            _context.Flights.Remove(flight);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

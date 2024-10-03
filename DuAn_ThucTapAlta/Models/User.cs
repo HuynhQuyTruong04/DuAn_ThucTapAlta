@@ -14,5 +14,7 @@ namespace DuAn_ThucTapAlta.Models
         public Role Role { get; set; }
 
         public ICollection<DocumentVersion> DocumentVersions { get; set; }
+        public ICollection<Document> Documents { get; set; }
+        public ICollection<Flight> Flights { get; set; }
     }
 }

@@ -12,9 +12,14 @@ namespace DuAn_ThucTapAlta.Models
         public string Status { get; set; }
         public decimal LastedVersion { get; set; } //phien ban moi nhat, kieu decimal de luu so thap phan
 
-        public int FlightId { get; set; } //khoa ngoai lien ket den bang Flight
-        public Flight Flight { get; set; }  //Navigation property ve Flight
-        public ICollection<DocumentVersion> DocumentVersions { get; set; } //Navigation property - Mot tai lieu co nhieu phien ban
+
+        public int UserId { get; set; }
+        public User User { get; set; }
+
+        public int FlightId { get; set; } 
+        public Flight Flight { get; set; } 
+
+        public ICollection<DocumentVersion> DocumentVersions { get; set; }
         public ICollection<Permission> Permissions { get; set; } //Navigation property - Mot tai lieu co nhieu quyen truy cap      
     }
 }

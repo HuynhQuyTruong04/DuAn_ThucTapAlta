@@ -36,5 +36,17 @@ namespace DuAn_ThucTapAlta.Services
             await _context.SaveChangesAsync();
             return workGroup;
         }
+
+        public async Task<bool> DeleteWorkGroupAsync(int workGroupId)
+        {
+            var workGroup = await _context.WorkGroups.FindAsync(workGroupId);
+            if (workGroup == null)
+            {
+                return false;
+            }
+            _context.WorkGroups.Remove(workGroup);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

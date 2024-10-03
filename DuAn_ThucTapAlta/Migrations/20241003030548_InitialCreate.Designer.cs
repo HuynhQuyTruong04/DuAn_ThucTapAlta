@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DuAn_ThucTapAlta.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240929104739_InitialyCreate")]
-    partial class InitialyCreate
+    [Migration("20241003030548_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace DuAn_ThucTapAlta.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DocumentPermission", b =>
+                {
+                    b.Property<int>("DocumentsDocumentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissionsPermissionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DocumentsDocumentId", "PermissionsPermissionId");
+
+                    b.HasIndex("PermissionsPermissionId");
+
+                    b.ToTable("DocumentPermissions", (string)null);
+                });
 
             modelBuilder.Entity("DuAn_ThucTapAlta.Models.Document", b =>
                 {
@@ -58,9 +73,14 @@ namespace DuAn_ThucTapAlta.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("DocumentId");
 
                     b.HasIndex("FlightId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Documents");
                 });
@@ -132,7 +152,12 @@ namespace DuAn_ThucTapAlta.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("FlightId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Flights");
                 });
@@ -145,9 +170,6 @@ namespace DuAn_ThucTapAlta.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PermissionId"));
 
-                    b.Property<int>("DocumentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("GroupName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -157,8 +179,6 @@ namespace DuAn_ThucTapAlta.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PermissionId");
-
-                    b.HasIndex("DocumentId");
 
                     b.ToTable("Permissions");
                 });
@@ -257,15 +277,38 @@ namespace DuAn_ThucTapAlta.Migrations
                     b.ToTable("WorkGroupPermissions", (string)null);
                 });
 
+            modelBuilder.Entity("DocumentPermission", b =>
+                {
+                    b.HasOne("DuAn_ThucTapAlta.Models.Document", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentsDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DuAn_ThucTapAlta.Models.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionsPermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DuAn_ThucTapAlta.Models.Document", b =>
                 {
                     b.HasOne("DuAn_ThucTapAlta.Models.Flight", "Flight")
                         .WithMany("Documents")
                         .HasForeignKey("FlightId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("DuAn_ThucTapAlta.Models.User", "User")
+                        .WithMany("Documents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Flight");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DuAn_ThucTapAlta.Models.DocumentVersion", b =>
@@ -287,15 +330,15 @@ namespace DuAn_ThucTapAlta.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DuAn_ThucTapAlta.Models.Permission", b =>
+            modelBuilder.Entity("DuAn_ThucTapAlta.Models.Flight", b =>
                 {
-                    b.HasOne("DuAn_ThucTapAlta.Models.Document", "Document")
-                        .WithMany("Permissions")
-                        .HasForeignKey("DocumentId")
+                    b.HasOne("DuAn_ThucTapAlta.Models.User", "User")
+                        .WithMany("Flights")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Document");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DuAn_ThucTapAlta.Models.User", b =>
@@ -335,8 +378,6 @@ namespace DuAn_ThucTapAlta.Migrations
             modelBuilder.Entity("DuAn_ThucTapAlta.Models.Document", b =>
                 {
                     b.Navigation("DocumentVersions");
-
-                    b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("DuAn_ThucTapAlta.Models.Flight", b =>
@@ -352,6 +393,10 @@ namespace DuAn_ThucTapAlta.Migrations
             modelBuilder.Entity("DuAn_ThucTapAlta.Models.User", b =>
                 {
                     b.Navigation("DocumentVersions");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("Flights");
                 });
 
             modelBuilder.Entity("DuAn_ThucTapAlta.Models.WorkGroup", b =>

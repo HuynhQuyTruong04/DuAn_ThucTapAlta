@@ -8,5 +8,6 @@ namespace DuAn_ThucTapAlta.Services
         Task<IEnumerable<Flight>> GetAllFlightsAsync();
         Task<Flight> CreateFlightAsync(Flight flight);
         Task<Flight> UpdateFlightAsync(Flight flight);
+        Task<bool> DeleteFlightAsync(int flightId);
     }
 }

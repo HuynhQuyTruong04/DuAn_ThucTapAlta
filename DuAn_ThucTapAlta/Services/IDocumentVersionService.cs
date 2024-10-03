@@ -8,5 +8,6 @@ namespace DuAn_ThucTapAlta.Services
         Task<IEnumerable<DocumentVersion>> GetAllDocumentVersionsAsync();
         Task<DocumentVersion> CreateDocumentVersionAsync(DocumentVersion documentVersion);
         Task<DocumentVersion> UpdateDocumentVersionAsync(DocumentVersion documentVersion);
+        Task<bool> DeleteDocumentVersionAsync(int versionId);
     }
 }

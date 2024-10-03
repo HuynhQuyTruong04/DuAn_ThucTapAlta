@@ -10,10 +10,7 @@ namespace DuAn_ThucTapAlta.Models
         public DateTime CreateDate { get; set; } //ngay tao nhom
         public string CreatedBy { get; set; } //nguoi tao nhom
 
-        //Navigation property - Mot nhom co nhieu nguoi dung
         public ICollection<User> Users { get; set; }
-
-        //Navigation property - Mot nhom co nhieu quyen
         public ICollection<Permission> Permissions { get; set; }
     }
 }

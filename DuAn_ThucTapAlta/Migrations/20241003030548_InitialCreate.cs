@@ -6,26 +6,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DuAn_ThucTapAlta.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialyCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Flights",
+                name: "Permissions",
                 columns: table => new
                 {
-                    FlightId = table.Column<int>(type: "int", nullable: false)
+                    PermissionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FlightNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Departure = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Destination = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DepartureDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PermissionType = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Flights", x => x.FlightId);
+                    table.PrimaryKey("PK_Permissions", x => x.PermissionId);
                 });
 
             migrationBuilder.CreateTable(
@@ -59,31 +56,6 @@ namespace DuAn_ThucTapAlta.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Documents",
-                columns: table => new
-                {
-                    DocumentId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DocumentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DocumentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Creator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastedVersion = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    FlightId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Documents", x => x.DocumentId);
-                    table.ForeignKey(
-                        name: "FK_Documents_Flights_FlightId",
-                        column: x => x.FlightId,
-                        principalTable: "Flights",
-                        principalColumn: "FlightId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -112,23 +84,104 @@ namespace DuAn_ThucTapAlta.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Permissions",
+                name: "WorkGroupPermissions",
                 columns: table => new
                 {
-                    PermissionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PermissionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DocumentId = table.Column<int>(type: "int", nullable: false)
+                    PermissionsPermissionId = table.Column<int>(type: "int", nullable: false),
+                    WorkGroupsGroupId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Permissions", x => x.PermissionId);
+                    table.PrimaryKey("PK_WorkGroupPermissions", x => new { x.PermissionsPermissionId, x.WorkGroupsGroupId });
                     table.ForeignKey(
-                        name: "FK_Permissions_Documents_DocumentId",
-                        column: x => x.DocumentId,
+                        name: "FK_WorkGroupPermissions_Permissions_PermissionsPermissionId",
+                        column: x => x.PermissionsPermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "PermissionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_WorkGroupPermissions_WorkGroups_WorkGroupsGroupId",
+                        column: x => x.WorkGroupsGroupId,
+                        principalTable: "WorkGroups",
+                        principalColumn: "GroupId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Flights",
+                columns: table => new
+                {
+                    FlightId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FlightNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Departure = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Destination = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DepartureDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Flights", x => x.FlightId);
+                    table.ForeignKey(
+                        name: "FK_Flights_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Documents",
+                columns: table => new
+                {
+                    DocumentId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DocumentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DocumentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Creator = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastedVersion = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    FlightId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Documents", x => x.DocumentId);
+                    table.ForeignKey(
+                        name: "FK_Documents_Flights_FlightId",
+                        column: x => x.FlightId,
+                        principalTable: "Flights",
+                        principalColumn: "FlightId");
+                    table.ForeignKey(
+                        name: "FK_Documents_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DocumentPermissions",
+                columns: table => new
+                {
+                    DocumentsDocumentId = table.Column<int>(type: "int", nullable: false),
+                    PermissionsPermissionId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentPermissions", x => new { x.DocumentsDocumentId, x.PermissionsPermissionId });
+                    table.ForeignKey(
+                        name: "FK_DocumentPermissions_Documents_DocumentsDocumentId",
+                        column: x => x.DocumentsDocumentId,
                         principalTable: "Documents",
                         principalColumn: "DocumentId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DocumentPermissions_Permissions_PermissionsPermissionId",
+                        column: x => x.PermissionsPermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "PermissionId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -163,34 +216,20 @@ namespace DuAn_ThucTapAlta.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "WorkGroupPermissions",
-                columns: table => new
-                {
-                    PermissionsPermissionId = table.Column<int>(type: "int", nullable: false),
-                    WorkGroupsGroupId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WorkGroupPermissions", x => new { x.PermissionsPermissionId, x.WorkGroupsGroupId });
-                    table.ForeignKey(
-                        name: "FK_WorkGroupPermissions_Permissions_PermissionsPermissionId",
-                        column: x => x.PermissionsPermissionId,
-                        principalTable: "Permissions",
-                        principalColumn: "PermissionId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_WorkGroupPermissions_WorkGroups_WorkGroupsGroupId",
-                        column: x => x.WorkGroupsGroupId,
-                        principalTable: "WorkGroups",
-                        principalColumn: "GroupId",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentPermissions_PermissionsPermissionId",
+                table: "DocumentPermissions",
+                column: "PermissionsPermissionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Documents_FlightId",
                 table: "Documents",
                 column: "FlightId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Documents_UserId",
+                table: "Documents",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DocumentVersions_DocumentId",
@@ -203,9 +242,9 @@ namespace DuAn_ThucTapAlta.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Permissions_DocumentId",
-                table: "Permissions",
-                column: "DocumentId");
+                name: "IX_Flights_UserId",
+                table: "Flights",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_GroupID",
@@ -227,28 +266,31 @@ namespace DuAn_ThucTapAlta.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "DocumentPermissions");
+
+            migrationBuilder.DropTable(
                 name: "DocumentVersions");
 
             migrationBuilder.DropTable(
                 name: "WorkGroupPermissions");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Documents");
 
             migrationBuilder.DropTable(
                 name: "Permissions");
+
+            migrationBuilder.DropTable(
+                name: "Flights");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "WorkGroups");
-
-            migrationBuilder.DropTable(
-                name: "Documents");
-
-            migrationBuilder.DropTable(
-                name: "Flights");
         }
     }
 }

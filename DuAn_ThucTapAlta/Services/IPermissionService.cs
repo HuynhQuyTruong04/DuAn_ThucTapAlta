@@ -8,5 +8,6 @@ namespace DuAn_ThucTapAlta.Services
         Task<IEnumerable<Permission>> GetAllPermissionsAsync();
         Task<Permission> CreatePermissionAsync(Permission permission);
         Task<Permission> UpdatePermissionAsync(Permission permission);
+        Task<bool> DeletePermissionAsync(int permissionId);
     }
 }

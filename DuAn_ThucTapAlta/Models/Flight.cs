@@ -11,7 +11,9 @@ namespace DuAn_ThucTapAlta.Models
         public DateTime DepartureDate { get; set; } //ngay khoi hanh
         public string Status { get; set; }
 
-        //Navigation property - Chuyen bay co the co nhieu tai lieu
+        public int UserId { get; set; }
+        public User User { get; set; }
+
         public ICollection<Document> Documents { get; set; }
     }
 }

@@ -49,19 +49,39 @@ namespace DuAn_ThucTapAlta.Data
             modelBuilder.Entity<Document>()
                 .HasOne<Flight>(d => d.Flight)
                 .WithMany(f => f.Documents)
-                .HasForeignKey(d => d.FlightId);
+                .HasForeignKey(d => d.FlightId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-            //Quan he 1 - N, moi Document co nhieu phien ban 
+            //Quan he 1 - N, moi User co the tham gia nhieu chuyen bay
+            modelBuilder.Entity<Flight>()
+                .HasOne<User>(f => f.User)
+                .WithMany(u => u.Flights)
+                .HasForeignKey(f => f.UserId);
+
+            //Quan he N - N, moi Document co nhieu phien ban 
             modelBuilder.Entity<DocumentVersion>()
                 .HasOne<Document>(dv => dv.Document)
                 .WithMany(d => d.DocumentVersions)
                 .HasForeignKey(dv => dv.DocumentId);
 
-            // Quan he N - N, Permission và WorkGroup (mot nhom co nhieu quyen va mot quyen co the thuoc nhieu nhom)
+            //Quan he N - N, Permission và WorkGroup (mot nhom co nhieu quyen va mot quyen co the thuoc nhieu nhom)
             modelBuilder.Entity<Permission>()
                 .HasMany(p => p.WorkGroups)
                 .WithMany(wg => wg.Permissions)
-                .UsingEntity(j => j.ToTable("WorkGroupPermissions")); // Bảng trung gian cho quan hệ N-N
+                .UsingEntity(j => j.ToTable("WorkGroupPermissions")); //Bảng trung gian cho quan hệ N-N
+
+            //Quan he N - N, Document va Permission
+            modelBuilder.Entity<Permission>()
+                .HasMany<Document>(p => p.Documents)
+                .WithMany(d => d.Permissions)
+                .UsingEntity(j => j.ToTable("DocumentPermissions")); //Bang trung gian
+
+            //Quan he 1 - N, mot User co the tai len nhieu Document
+            modelBuilder.Entity<Document>()
+                .HasOne<User>(d => d.User)
+                .WithMany(u => u.Documents)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }   
