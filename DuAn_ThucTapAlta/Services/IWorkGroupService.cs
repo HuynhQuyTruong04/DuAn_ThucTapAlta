@@ -1,4 +1,5 @@
-﻿using DuAn_ThucTapAlta.Models;
+﻿using DuAn_ThucTapAlta.DTO.WorkGroup;
+using DuAn_ThucTapAlta.Models;
 
 namespace DuAn_ThucTapAlta.Services
 {
@@ -7,7 +8,7 @@ namespace DuAn_ThucTapAlta.Services
         Task<WorkGroup> GetWorkGroupByIdAsync(int workGroupId);
         Task<IEnumerable<WorkGroup>> GetAllWorkGroupsAsync();
         Task<WorkGroup> CreateWorkGroupAsync(WorkGroup workGroup);
-        Task<WorkGroup> UpdateWorkGroupAsync(WorkGroup workGroup);
+        Task<WorkGroup> UpdateWorkGroupAsync(int id, UpdateWorkGroupRequestDTO updateDto);
         Task<bool> DeleteWorkGroupAsync(int workGroupId);
     }
 }

@@ -31,12 +31,12 @@ namespace DuAn_ThucTapAlta.Data
             modelBuilder.Entity<User>()
                 .HasOne<WorkGroup>(e => e.WorkGroup)
                 .WithMany(wg => wg.Users)
-                .HasForeignKey(e => e.GroupID);
+                .HasForeignKey(e => e.GroupId);
 
             //Quan he 1 - N, mot Role co nhieu User
             modelBuilder.Entity<User>()
                 .HasOne<Role>(u => u.Role)
-                .WithMany(r => r.Users) 
+                .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId);
 
             //Quan he 1 - N, mot User co the tai len nhieu DocumentVersion
@@ -57,6 +57,7 @@ namespace DuAn_ThucTapAlta.Data
                 .HasOne<User>(f => f.User)
                 .WithMany(u => u.Flights)
                 .HasForeignKey(f => f.UserId);
+            //.IsRequired(false);
 
             //Quan he N - N, moi Document co nhieu phien ban 
             modelBuilder.Entity<DocumentVersion>()

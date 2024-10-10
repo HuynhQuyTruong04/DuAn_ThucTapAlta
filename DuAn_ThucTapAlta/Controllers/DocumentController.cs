@@ -1,7 +1,10 @@
-﻿using DuAn_ThucTapAlta.Models;
+﻿using DuAn_ThucTapAlta.Data;
+using DuAn_ThucTapAlta.DTO.Documents;
+using DuAn_ThucTapAlta.Mappers;
+using DuAn_ThucTapAlta.Models;
 using DuAn_ThucTapAlta.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace DuAn_ThucTapAlta.Controllers
 {
@@ -9,82 +12,94 @@ namespace DuAn_ThucTapAlta.Controllers
     [ApiController]
     public class DocumentController : ControllerBase
     {
+        private readonly ApplicationDBContext _context;
         private readonly IDocumentService _documentService;
 
-        public DocumentController(IDocumentService documentService)
+        public DocumentController(IDocumentService documentService, ApplicationDBContext context)
         {
+            _context = context;
             _documentService = documentService;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetDocument(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var document = await _documentService.GetDocumentByIdAsync(id);
 
             if (document == null)
             {
-                return NotFound("Tài liệu không tồn tại!");
+                return NotFound("Không tìm thấy Document!");
             }
 
-            return Ok(document);
+            return Ok(document.ToDocumentDTO());
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllDocuments()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var documents = await _documentService.GetAllDocumentsAsync();
-            return Ok(documents);
+
+            var documentDto = documents.Select(s => s.ToDocumentDTO()).ToList();
+
+            return Ok(documentDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateDocument([FromBody] Document document)
+        public async Task<IActionResult> CreateDocument([FromBody] CreateDocumentRequestDTO documentDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (document == null)
+            if (documentDto == null)
             {
                 return BadRequest("Tài liệu không hợp lệ!");
             }
 
-            var createDocument = await _documentService.CreateDocumentAsync(document);
+            var documentModel = documentDto.ToDocumentFromCreateDTO();
 
-            return CreatedAtAction(nameof(GetDocument), new { id = createDocument.DocumentId }, createDocument);
+            await _documentService.CreateDocumentAsync(documentModel);
+
+            return CreatedAtAction(nameof(GetDocument), new { id = documentModel.DocumentId }, documentModel.ToDocumentDTO());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDocument(int id, [FromBody] Document document)
+        public async Task<IActionResult> UpdateDocument(int id, [FromBody] UpdateDocumentRequestDTO updateDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != document.DocumentId)
+            var documentModel = await _documentService.UpdateDocumentAsync(id, updateDto);
+
+            if (documentModel == null)
             {
-                return BadRequest("ID không hợp lệ!");
+                return NotFound("Tài liệu không tồn tại.");
             }
 
-            var updateDocument = await _documentService.UpdateDocumentAsync(document);
-
-            if (updateDocument == null)
-            {
-                return NotFound("Tài liệu không tồn tại!");
-            }
-
-            return Ok(updateDocument);
+            return Ok(documentModel.ToDocumentDTO());
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDocument(int id)
         {
-            var isDelete = await _documentService.DeleteDocumentAsync(id);
+            var isDeleted = await _documentService.DeleteDocumentAsync(id);
 
-            if (!isDelete)
+            if (!isDeleted)
             {
-                return NotFound("Tài liệu không tồn tại!");
+                return NotFound("Tài liệu không tồn tại.");
             }
 
             return NoContent();

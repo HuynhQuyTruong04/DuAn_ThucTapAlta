@@ -7,6 +7,6 @@
         public string Description { get; set; }
 
         //Mot vai tro co nhieu nguoi dung
-        public ICollection<User> Users { get; set;}
+        public ICollection<User> Users { get; set; }
     }
 }

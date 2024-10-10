@@ -1,16 +1,16 @@
-﻿using DuAn_ThucTapAlta.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using DuAn_ThucTapAlta.DTO.Logins;
+using DuAn_ThucTapAlta.DTO.Users;
+using DuAn_ThucTapAlta.Models;
 
 namespace DuAn_ThucTapAlta.Services
 {
     public interface IUserService
     {
-        Task<User> GetUserByIdAsync (int userId);
+        Task<User> GetUserByIdAsync(int id);
         Task<IEnumerable<User>> GetAllUsersAsync();
-        Task<User> CreateUserAsync (User user);
-        Task<User> UpdateUserAsync(User user);
-        Task<bool> DeleteUserAsync(int userId);
-        bool ValidateEmailDomain(string email);
+        Task<User> CreateUserAsync(User user);
+        Task<User> UpdateUserAsync(int id, UpdateUserRequestDTO updateDto);
+        Task<bool> DeleteUserAsync(int id);
     }
 }
+

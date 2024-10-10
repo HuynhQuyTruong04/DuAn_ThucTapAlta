@@ -1,4 +1,5 @@
-﻿using DuAn_ThucTapAlta.Models;
+﻿using DuAn_ThucTapAlta.DTO.Flights;
+using DuAn_ThucTapAlta.Models;
 
 namespace DuAn_ThucTapAlta.Services
 {
@@ -7,7 +8,7 @@ namespace DuAn_ThucTapAlta.Services
         Task<Flight> GetFlightByIdAsync(int flightId);
         Task<IEnumerable<Flight>> GetAllFlightsAsync();
         Task<Flight> CreateFlightAsync(Flight flight);
-        Task<Flight> UpdateFlightAsync(Flight flight);
+        Task<Flight> UpdateFlightAsync(int id, UpdateFlightRequestDTO updateDto);
         Task<bool> DeleteFlightAsync(int flightId);
     }
 }

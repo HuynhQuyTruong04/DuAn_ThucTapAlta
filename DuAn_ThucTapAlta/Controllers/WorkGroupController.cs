@@ -1,7 +1,10 @@
-﻿using DuAn_ThucTapAlta.Models;
+﻿using DuAn_ThucTapAlta.Data;
+using DuAn_ThucTapAlta.DTO.WorkGroup;
+using DuAn_ThucTapAlta.Mappers;
+using DuAn_ThucTapAlta.Models;
 using DuAn_ThucTapAlta.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace DuAn_ThucTapAlta.Controllers
 {
@@ -9,82 +12,94 @@ namespace DuAn_ThucTapAlta.Controllers
     [ApiController]
     public class WorkGroupController : ControllerBase
     {
+        private readonly ApplicationDBContext _context;
         private readonly IWorkGroupService _workGroupService;
 
-        public WorkGroupController(IWorkGroupService workGroupService)
+        public WorkGroupController(IWorkGroupService workGroupService, ApplicationDBContext context)
         {
+            _context = context;
             _workGroupService = workGroupService;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetWorkGroup(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var workGroup = await _workGroupService.GetWorkGroupByIdAsync(id);
 
             if (workGroup == null)
             {
-                return NotFound("Nhóm không tồn tại! ");
+                return NotFound("Không tìm thấy Group!");
             }
 
-            return Ok(workGroup);
+            return Ok(workGroup.ToWorkGroupDTO());
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllWorkGroups()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var workGroups = await _workGroupService.GetAllWorkGroupsAsync();
-            return Ok(workGroups);
+
+            var workGroupDto = workGroups.Select(s => s.ToWorkGroupDTO()).ToList();
+
+            return Ok(workGroupDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateWorkGroup([FromBody] WorkGroup workGroup)
+        public async Task<IActionResult> CreateWorkGroup([FromBody] CreateWorkGroupRequestDTO workGroupDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (workGroup == null)
+            if (workGroupDto == null)
             {
-                return BadRequest("Nhóm không hợp lệ!");
+                return BadRequest("Group không hợp lệ!");
             }
 
-            var createWorkGroup = await _workGroupService.CreateWorkGroupAsync(workGroup);
+            var workGroupModel = workGroupDto.ToWorkGroupFromCreateDTO();
 
-            return CreatedAtAction(nameof(GetWorkGroup), new { id = createWorkGroup.GroupId }, createWorkGroup);
+            await _workGroupService.CreateWorkGroupAsync(workGroupModel);
+
+            return CreatedAtAction(nameof(GetWorkGroup), new { id = workGroupModel.GroupId }, workGroupModel.ToWorkGroupDTO());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateWorkGroup(int id, [FromBody] WorkGroup workGroup)
+        public async Task<IActionResult> UpdateWorkGroup(int id, [FromBody] UpdateWorkGroupRequestDTO updateDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != workGroup.GroupId)
+            var workGroupModel = await _workGroupService.UpdateWorkGroupAsync(id, updateDto);
+
+            if (workGroupModel == null)
             {
-                return BadRequest("ID không hợp lệ!");
+                return NotFound("Group không tồn tại.");
             }
 
-            var updateWorkGroup = await _workGroupService.UpdateWorkGroupAsync(workGroup);
-
-            if (updateWorkGroup == null)
-            {
-                return NotFound("Nhóm không tồn tại!");
-            }
-
-            return Ok(updateWorkGroup);
+            return Ok(workGroupModel.ToWorkGroupDTO());
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorkGroup(int id)
         {
-            var isDelete = await _workGroupService.DeleteWorkGroupAsync(id);
+            var isDeleted = await _workGroupService.DeleteWorkGroupAsync(id);
 
-            if (!isDelete)
+            if (!isDeleted)
             {
-                return NotFound("Nhóm không tồn tại!");
+                return NotFound("Group không tồn tại.");
             }
 
             return NoContent();

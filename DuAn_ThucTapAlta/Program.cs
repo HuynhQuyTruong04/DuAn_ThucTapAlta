@@ -39,41 +39,41 @@ var builder = WebApplication.CreateBuilder(args);
         };
     });
 
-    // Cấu hình Authorization
-    builder.Services.AddAuthorization();
+//// Cấu hình Authorization
+//builder.Services.AddAuthorization();
 
-    // Cấu hình Swagger để hỗ trợ JWT
-    builder.Services.AddSwaggerGen(c =>
-    {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "Vietjetair API", Version = "v1" });
+//// Cấu hình Swagger để hỗ trợ JWT
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Vietjetair API", Version = "v1" });
 
-        // Thêm cấu hình để dùng JWT trong Swagger
-        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-        {
-            In = ParameterLocation.Header,
-            Description = "Vui lòng nhập token theo định dạng: Bearer <token>",
-            Name = "Authorization",
-            Type = SecuritySchemeType.ApiKey,
-            Scheme = "Bearer"
-        });
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                new string[] { }
-            }
-        });
-    });
+//    // Thêm cấu hình để dùng JWT trong Swagger
+//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//    {
+//        In = ParameterLocation.Header,
+//        Description = "Vui lòng nhập token theo định dạng: Bearer <token>",
+//        Name = "Authorization",
+//        Type = SecuritySchemeType.ApiKey,
+//        Scheme = "Bearer"
+//    });
+//    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+//    {
+//            {
+//                new OpenApiSecurityScheme
+//                {
+//                    Reference = new OpenApiReference
+//                    {
+//                        Type = ReferenceType.SecurityScheme,
+//                        Id = "Bearer"
+//                    }
+//                },
+//                new string[] { }
+//            }
+//    });
+//});
 
-    // Add services to the container
-    builder.Services.AddControllers();
+// Add services to the container
+builder.Services.AddControllers();
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();

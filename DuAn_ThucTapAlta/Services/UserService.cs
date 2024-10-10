@@ -1,6 +1,6 @@
 ﻿using DuAn_ThucTapAlta.Data;
+using DuAn_ThucTapAlta.DTO.Users;
 using DuAn_ThucTapAlta.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
@@ -10,14 +10,14 @@ namespace DuAn_ThucTapAlta.Services
     {
         private readonly ApplicationDBContext _context;
 
-        public UserService (ApplicationDBContext context)
+        public UserService(ApplicationDBContext context)
         {
             _context = context;
         }
 
-        public async Task<User> GetUserByIdAsync (int userId)
+        public async Task<User> GetUserByIdAsync(int id)
         {
-            return await _context.Users.FindAsync(userId);
+            return await _context.Users.FirstOrDefaultAsync(s => s.UserId == id);
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
@@ -25,23 +25,32 @@ namespace DuAn_ThucTapAlta.Services
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<User> CreateUserAsync (User user)
+        public async Task<User> CreateUserAsync(User user)
         {
-            _context.Users.Add(user);
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;
         }
 
-        public async Task<User> UpdateUserAsync(User user)
+        public async Task<User> UpdateUserAsync(int id, UpdateUserRequestDTO updateDto)
         {
-            _context.Entry(user).State = EntityState.Modified;
+            var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
+
+            if (existingUser == null)
+            {
+                return null;
+            }
+
+            existingUser.Email = updateDto.Email;
+            existingUser.PassWord = updateDto.PassWord;
+
             await _context.SaveChangesAsync();
-            return user;
+            return existingUser;
         }
 
-        public async Task<bool> DeleteUserAsync(int userId)
+        public async Task<bool> DeleteUserAsync(int id)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
             if (user == null)
             {
                 return false;
