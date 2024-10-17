@@ -12,7 +12,8 @@ namespace DuAn_ThucTapAlta.Mappers
                 UserId = userModel.UserId,
                 Email = userModel.Email,
                 PassWord = userModel.PassWord,
-                GroupId = userModel.GroupId
+                GroupId = userModel.GroupId,
+                RoleId = userModel.RoleId
             };
         }
 
@@ -23,7 +24,8 @@ namespace DuAn_ThucTapAlta.Mappers
                 UserId = userDto.UserId,
                 Email = userDto.Email,
                 PassWord = userDto.PassWord,
-                GroupId = userDto.GroupId
+                GroupId = userDto.GroupId,
+                RoleId = userDto.RoleId
             };
         }
     }

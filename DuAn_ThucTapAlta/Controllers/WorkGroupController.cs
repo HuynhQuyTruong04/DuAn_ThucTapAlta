@@ -3,6 +3,7 @@ using DuAn_ThucTapAlta.DTO.WorkGroup;
 using DuAn_ThucTapAlta.Mappers;
 using DuAn_ThucTapAlta.Models;
 using DuAn_ThucTapAlta.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -22,6 +23,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> GetWorkGroup(int id)
         {
             if (!ModelState.IsValid)
@@ -40,6 +43,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> GetAllWorkGroups()
         {
             if (!ModelState.IsValid)
@@ -55,6 +60,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> CreateWorkGroup([FromBody] CreateWorkGroupRequestDTO workGroupDto)
         {
             if (!ModelState.IsValid)
@@ -75,6 +82,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> UpdateWorkGroup(int id, [FromBody] UpdateWorkGroupRequestDTO updateDto)
         {
             if (!ModelState.IsValid)
@@ -93,6 +102,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> DeleteWorkGroup(int id)
         {
             var isDeleted = await _workGroupService.DeleteWorkGroupAsync(id);

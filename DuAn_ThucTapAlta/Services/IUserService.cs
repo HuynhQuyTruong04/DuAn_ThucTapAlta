@@ -1,5 +1,4 @@
-﻿using DuAn_ThucTapAlta.DTO.Logins;
-using DuAn_ThucTapAlta.DTO.Users;
+﻿using DuAn_ThucTapAlta.DTO.Users;
 using DuAn_ThucTapAlta.Models;
 
 namespace DuAn_ThucTapAlta.Services
@@ -11,6 +10,9 @@ namespace DuAn_ThucTapAlta.Services
         Task<User> CreateUserAsync(User user);
         Task<User> UpdateUserAsync(int id, UpdateUserRequestDTO updateDto);
         Task<bool> DeleteUserAsync(int id);
+        Task<User> ValidateUserAsync(string email, string password);
+        Task<User> GetUserByEmailAsync(string email);
+        Task<int> GetRoleIdByNameAsync(string roleName);
     }
 }
 

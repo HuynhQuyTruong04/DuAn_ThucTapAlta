@@ -2,100 +2,128 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Configuration;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
+
 using DuAn_ThucTapAlta.Services;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+    var builder = WebApplication.CreateBuilder(args);
 
-    /// Thêm dịch vụ kết nối tới database
+    // Add services to the container
+
+    // Đọc cấu hình từ file appsettings.json
+    builder.Configuration.AddJsonFile("appsettings.json");
+
+    // Configure Database
     builder.Services.AddDbContext<ApplicationDBContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    // Cấu hình Identity
-    builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-        .AddEntityFrameworkStores<ApplicationDBContext>()
-        .AddDefaultTokenProviders();
+    builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-    // Cấu hình Authentication
-    builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+var jwtKey = builder.Configuration["Jwt:Key"];
+var key = Encoding.UTF8.GetBytes(jwtKey);
+
+options.TokenValidationParameters = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidateAudience = true,
+    ValidateLifetime = true,
+    ValidateIssuerSigningKey = true,
+    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+    ValidAudience = builder.Configuration["Jwt:Audience"],
+    IssuerSigningKey = new SymmetricSecurityKey(key),
+    ClockSkew = TimeSpan.Zero // Không có độ trễ cho token expiration
+};
+
+options.Events = new JwtBearerEvents
+{
+    OnChallenge = async context =>
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
+        // Trả về phản hồi lỗi 403 khi người dùng không có quyền truy cập
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        context.Response.ContentType = "application/json";
+
+        // Kiểm tra nếu chưa có phản hồi
+        if (string.IsNullOrEmpty(context.Error))
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
+            await context.Response.WriteAsync("{\"message\":\"Bạn không có quyền truy cập nội dung này.\"}");
+        }
+        else
+        {
+            await context.Response.WriteAsync("{\"message\":\"Token không hợp lệ hoặc hết hạn.\"}");
+        }
+        context.HandleResponse();
+    }
+};
+});
+
+// Configure Authorization
+builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Staff"));
+        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Manager"));
+        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Pilot"));
+        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Stewardess"));
     });
 
-//// Cấu hình Authorization
-//builder.Services.AddAuthorization();
+    // Configure Swagger
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "Vietjetair API", Version = "v1" });
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            In = ParameterLocation.Header,
+            Description = "Please enter JWT with Bearer scheme. Example: 'Bearer {token}'",
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer"
+        });
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] { }
+            }
+        });
+    });
 
-//// Cấu hình Swagger để hỗ trợ JWT
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Vietjetair API", Version = "v1" });
-
-//    // Thêm cấu hình để dùng JWT trong Swagger
-//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-//    {
-//        In = ParameterLocation.Header,
-//        Description = "Vui lòng nhập token theo định dạng: Bearer <token>",
-//        Name = "Authorization",
-//        Type = SecuritySchemeType.ApiKey,
-//        Scheme = "Bearer"
-//    });
-//    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-//    {
-//            {
-//                new OpenApiSecurityScheme
-//                {
-//                    Reference = new OpenApiReference
-//                    {
-//                        Type = ReferenceType.SecurityScheme,
-//                        Id = "Bearer"
-//                    }
-//                },
-//                new string[] { }
-//            }
-//    });
-//});
-
-// Add services to the container
-builder.Services.AddControllers();
-
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-    
-    //Add services by Quý Trường
+    // Add application services (Dependency Injection)
     builder.Services.AddScoped<IUserService, UserService>();
-    builder.Services.AddScoped<IDocumentService, DocumentService >();
+    builder.Services.AddScoped<IDocumentService, DocumentService>();
     builder.Services.AddScoped<IWorkGroupService, WorkGroupService>();
     builder.Services.AddScoped<IDocumentVersionService, DocumentVersionService>();
     builder.Services.AddScoped<IPermissionService, PermissionService>();
-    builder.Services.AddScoped<IFlightService ,FlightService>();
+    builder.Services.AddScoped<IFlightService, FlightService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
-    
+
+    // Add controllers
+    builder.Services.AddControllers();
+
+    // Build the app
     var app = builder.Build();
 
-    // Configure the HTTP request pipeline.
+    // Configure the HTTP request pipeline
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
         app.UseSwaggerUI();
     }
+
     app.UseExceptionHandler("/error");
 
     app.UseHttpsRedirection();

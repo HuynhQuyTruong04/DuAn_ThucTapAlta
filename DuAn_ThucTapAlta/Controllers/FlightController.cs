@@ -3,6 +3,7 @@ using DuAn_ThucTapAlta.DTO.Flights;
 using DuAn_ThucTapAlta.Mappers;
 using DuAn_ThucTapAlta.Models;
 using DuAn_ThucTapAlta.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -22,6 +23,7 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Pilot,Manager")]
         public async Task<IActionResult> GetFlight(int id)
         {
             if (!ModelState.IsValid)
@@ -40,6 +42,7 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Pilot,Manager")]
         public async Task<IActionResult> GetAllFlights()
         {
             if (!ModelState.IsValid)
@@ -55,6 +58,7 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Pilot,Manager")]
         public async Task<IActionResult> CreateFlight([FromBody] CreateFlightRequestDTO flightDto)
         {
             if (!ModelState.IsValid)
@@ -75,6 +79,7 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Pilot,Manager")]
         public async Task<IActionResult> UpdateFlight(int id, [FromBody] UpdateFlightRequestDTO updateDto)
         {
             if (!ModelState.IsValid)
@@ -93,6 +98,7 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Pilot,Manager")]
         public async Task<IActionResult> DeleteFlight(int id)
         {
             var isDeleted = await _flightService.DeleteFlightAsync(id);

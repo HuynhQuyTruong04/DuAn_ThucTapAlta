@@ -3,6 +3,7 @@ using DuAn_ThucTapAlta.DTO.Documents;
 using DuAn_ThucTapAlta.Mappers;
 using DuAn_ThucTapAlta.Models;
 using DuAn_ThucTapAlta.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -21,7 +22,9 @@ namespace DuAn_ThucTapAlta.Controllers
             _documentService = documentService;
         }
 
+        [Authorize]
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> GetDocument(int id)
         {
             if (!ModelState.IsValid)
@@ -40,6 +43,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> GetAllDocuments()
         {
             if (!ModelState.IsValid)
@@ -55,6 +60,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> CreateDocument([FromBody] CreateDocumentRequestDTO documentDto)
         {
             if (!ModelState.IsValid)
@@ -75,6 +82,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> UpdateDocument(int id, [FromBody] UpdateDocumentRequestDTO updateDto)
         {
             if (!ModelState.IsValid)
@@ -93,6 +102,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> DeleteDocument(int id)
         {
             var isDeleted = await _documentService.DeleteDocumentAsync(id);

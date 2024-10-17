@@ -1,5 +1,6 @@
 ﻿using DuAn_ThucTapAlta.Models;
 using DuAn_ThucTapAlta.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> GetPermission(int id)
         {
             var permission = await _permissionService.GetPermissionByIdAsync(id);
@@ -30,6 +33,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> GetAllPermissions()
         {
             var permissions = await _permissionService.GetAllPermissionsAsync();
@@ -37,6 +42,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> CreatePermission([FromBody] Permission permission)
         {
             if (!ModelState.IsValid)
@@ -55,6 +62,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UpdatePermission(int id, [FromBody] Permission permission)
         {
             if (!ModelState.IsValid)
@@ -78,6 +87,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeletePermission(int id)
         {
             var isDelete = await _permissionService.DeletePermissionAsync(id);

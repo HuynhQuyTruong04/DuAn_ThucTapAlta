@@ -17,4 +17,12 @@ namespace DuAn_ThucTapAlta.Models
         public ICollection<Document> Documents { get; set; }
         public ICollection<Flight> Flights { get; set; }
     }
+
+    public class Jwt
+    {
+        public string Key { get; set; }
+        public string Issuer { get; set; }
+        public string Subject { get; set; }
+        public string Audience { get; set; }
+    }
 }

@@ -3,6 +3,7 @@ using DuAn_ThucTapAlta.DTO.Users;
 using DuAn_ThucTapAlta.Mappers;
 using DuAn_ThucTapAlta.Models;
 using DuAn_ThucTapAlta.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -22,6 +23,7 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> GetUser(int id)
         {
             if (!ModelState.IsValid)
@@ -40,6 +42,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> GetAllUsers()
         {
             if (!ModelState.IsValid)
@@ -56,8 +60,9 @@ namespace DuAn_ThucTapAlta.Controllers
             //return Ok(users);
         }
 
-        // Tạo mới User
         [HttpPost]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequestDTO userDto)
         {
             if (!ModelState.IsValid)
@@ -69,7 +74,7 @@ namespace DuAn_ThucTapAlta.Controllers
             {
                 return BadRequest("Người dùng không hợp lệ!");
             }
-
+    
             var userModel = userDto.ToUserFromCreateDTO();
 
             await _userService.CreateUserAsync(userModel);
@@ -94,6 +99,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDTO updateDto)
         {
             if (!ModelState.IsValid)
@@ -117,6 +124,8 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var isDeleted = await _userService.DeleteUserAsync(id);
