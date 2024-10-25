@@ -20,59 +20,59 @@ using System.Text;
 
     builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-var jwtKey = builder.Configuration["Jwt:Key"];
-var key = Encoding.UTF8.GetBytes(jwtKey);
-
-options.TokenValidationParameters = new TokenValidationParameters
-{
-    ValidateIssuer = true,
-    ValidateAudience = true,
-    ValidateLifetime = true,
-    ValidateIssuerSigningKey = true,
-    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-    ValidAudience = builder.Configuration["Jwt:Audience"],
-    IssuerSigningKey = new SymmetricSecurityKey(key),
-    ClockSkew = TimeSpan.Zero // Không có độ trễ cho token expiration
-};
-
-options.Events = new JwtBearerEvents
-{
-    OnChallenge = async context =>
+    builder.Services.AddAuthentication(options =>
     {
-        // Trả về phản hồi lỗi 403 khi người dùng không có quyền truy cập
-        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        context.Response.ContentType = "application/json";
-
-        // Kiểm tra nếu chưa có phản hồi
-        if (string.IsNullOrEmpty(context.Error))
-        {
-            await context.Response.WriteAsync("{\"message\":\"Bạn không có quyền truy cập nội dung này.\"}");
-        }
-        else
-        {
-            await context.Response.WriteAsync("{\"message\":\"Token không hợp lệ hoặc hết hạn.\"}");
-        }
-        context.HandleResponse();
-    }
-};
-});
-
-// Configure Authorization
-builder.Services.AddAuthorization(options =>
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
     {
-        options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
-        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Staff"));
-        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Manager"));
-        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Pilot"));
-        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Stewardess"));
+    var jwtKey = builder.Configuration["Jwt:Key"];
+    var key = Encoding.UTF8.GetBytes(jwtKey);
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = async context =>
+        {
+            // Trả về phản hồi lỗi 403 khi người dùng không có quyền truy cập
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = "application/json";
+
+            // Kiểm tra nếu chưa có phản hồi
+            if (string.IsNullOrEmpty(context.Error))
+            {
+                await context.Response.WriteAsync("{\"message\":\"Bạn không có quyền truy cập nội dung này.\"}");
+            }
+            else
+            {
+                await context.Response.WriteAsync("{\"message\":\"Token không hợp lệ hoặc hết hạn.\"}");
+            }
+            context.HandleResponse();
+        }
+    };
     });
+
+    // Configure Authorization
+    builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Staff"));
+            options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Manager"));
+            options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Pilot"));
+            options.AddPolicy("RequireUserRole", policy => policy.RequireRole("Stewardess"));
+        });
 
     // Configure Swagger
     builder.Services.AddSwaggerGen(c =>

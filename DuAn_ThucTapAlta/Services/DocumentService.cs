@@ -52,16 +52,37 @@ namespace DuAn_ThucTapAlta.Services
             return existingDocument;
         }
 
-        public async Task<bool> DeleteDocumentAsync(int id)
+        public async Task<bool> DeactivateDocumentAsync(int id)
         {
-            var document = await _context.Documents.FindAsync(id);
+            var document = await _context.Documents.FirstOrDefaultAsync(x => x.DocumentId == id);
             if (document == null)
             {
                 return false;
             }
-            _context.Documents.Remove(document);
+
+            document.IsActive = false;
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> ActivateDocumentAsync(int id)
+        {
+            var document = await _context.Documents.FirstOrDefaultAsync(x => x.DocumentId == id);
+            if (document == null || document.IsActive) 
+            {
+                return false;
+            }
+
+            document.IsActive = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<Document>> GetInactiveDocumentsAsync()
+        {
+            return await _context.Documents
+                                 .Where(d => !d.IsActive)
+                                 .ToListAsync();
         }
     }
 }

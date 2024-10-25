@@ -10,6 +10,8 @@ namespace DuAn_ThucTapAlta.Models
         public int GroupId { get; set; }
         public WorkGroup WorkGroup { get; set; }
 
+        public bool IsActive { get; set; } = true;
+
         public int RoleId { get; set; }
         public Role Role { get; set; }
 

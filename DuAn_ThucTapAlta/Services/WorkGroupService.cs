@@ -61,12 +61,5 @@ namespace DuAn_ThucTapAlta.Services
             await _context.SaveChangesAsync();
             return true;
         }
-
-        //kiem tra email dung dinh dang @vietjetair.com
-        public bool ValidateEmailDomain(string email)
-        {
-            string pattern = @"^[a-zA-Z0-9._%+-]+@vietjetair\.com$";
-            return Regex.IsMatch(email, pattern);
-        }
     }
 }

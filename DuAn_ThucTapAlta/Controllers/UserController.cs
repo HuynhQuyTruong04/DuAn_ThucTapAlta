@@ -42,7 +42,6 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -56,12 +55,9 @@ namespace DuAn_ThucTapAlta.Controllers
             var userDto = users.Select(s => s.ToUserDTO()).ToList();
 
             return Ok(userDto);
-            //var users = _userService.GetAllUsersAsync.ToList();
-            //return Ok(users);
         }
 
         [HttpPost]
-        [Authorize]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequestDTO userDto)
         {
@@ -80,26 +76,9 @@ namespace DuAn_ThucTapAlta.Controllers
             await _userService.CreateUserAsync(userModel);
 
             return CreatedAtAction(nameof(GetUser), new { id = userModel.UserId }, userModel.ToUserDTO());
-
-            //if (!_userService.ValidateEmailDomain)
-            //{
-            //    return BadRequest("Email phải thuộc miền @vietjetair.com.");
-            //}
-
-            // Chuyển DTO thành Model để lưu vào database
-            //var user = new User
-            //{
-            //    Email = userDto.Email,
-            //    PassWord = userDto.PassWord
-            //};
-
-            //var createdUser = await _userService.CreateUserAsync(user);
-
-            //return CreatedAtAction(nameof(GetUser), new { id = createdUser.UserId }, createdUser);
         }
 
         [HttpPut("{id}")]
-        [Authorize]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDTO updateDto)
         {
@@ -107,11 +86,6 @@ namespace DuAn_ThucTapAlta.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            //if (!_userService.ValidateEmailDomain(userDto.Email))
-            //{
-            //    return BadRequest("Email phải thuộc miền @vietjetair.com.");
-            //}
 
             var userModel = await _userService.UpdateUserAsync(id, updateDto);
 
@@ -124,18 +98,53 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Manager")]    
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var isDeleted = await _userService.DeleteUserAsync(id);
+            var user = await _userService.GetUserByIdAsync(id);
 
-            if (!isDeleted)
+            if (user == null)
             {
                 return NotFound("Người dùng không tồn tại.");
             }
 
-            return NoContent();
+            var result = await _userService.DeactivateUserAsync(id);
+
+            if (!result)
+            {
+                return NotFound("Không thể vô hiệu hóa người dùng!");
+            }
+
+            return Ok("Người dùng đã được vô hiệu hóa");
+        }
+
+        [HttpPut("{id}/activate")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> ActivateUser(int id)
+        {
+            var result = await _userService.ActivateUserAsync(id);
+
+            if (!result)
+            {
+                return NotFound("Người dùng không tồn tại hoặc đã đang hoạt động.");
+            }
+
+            return Ok("Người dùng đã được kích hoạt.");
+        }
+
+        [HttpGet("inactive")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> GetInactiveUsers()
+        {
+            var inactiveUsers = await _userService.GetInactiveUsersAsync();
+
+            if (!inactiveUsers.Any())
+            {
+                return NotFound("Không có người dùng nào bị vô hiệu hóa.");
+            }
+
+            var userDtos = inactiveUsers.Select(u => u.ToUserDTO()).ToList();
+            return Ok(userDtos);
         }
     }
 }

@@ -12,6 +12,7 @@ namespace DuAn_ThucTapAlta.Models
         public string Status { get; set; }
         public decimal LastedVersion { get; set; } //phien ban moi nhat, kieu decimal de luu so thap phan
 
+        public bool IsActive { get; set; } = true;
 
         public int UserId { get; set; }
         public User User { get; set; }

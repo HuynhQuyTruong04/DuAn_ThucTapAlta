@@ -5,10 +5,10 @@ namespace DuAn_ThucTapAlta.Services
 {
     public interface IWorkGroupService
     {
-        Task<WorkGroup> GetWorkGroupByIdAsync(int workGroupId);
+        Task<WorkGroup> GetWorkGroupByIdAsync(int id);
         Task<IEnumerable<WorkGroup>> GetAllWorkGroupsAsync();
         Task<WorkGroup> CreateWorkGroupAsync(WorkGroup workGroup);
         Task<WorkGroup> UpdateWorkGroupAsync(int id, UpdateWorkGroupRequestDTO updateDto);
-        Task<bool> DeleteWorkGroupAsync(int workGroupId);
+        Task<bool> DeleteWorkGroupAsync(int id);
     }
 }

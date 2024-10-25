@@ -102,18 +102,46 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
-        [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteDocument(int id)
         {
-            var isDeleted = await _documentService.DeleteDocumentAsync(id);
+            var result = await _documentService.DeactivateDocumentAsync(id);
 
-            if (!isDeleted)
+            if (!result)
             {
-                return NotFound("Tài liệu không tồn tại.");
+                return NotFound("Tài liệu không tồn tại hoặc đã bị vô hiệu hóa.");
             }
 
-            return NoContent();
+            return Ok("Tài liệu đã được vô hiệu hóa.");
+        }
+
+        [HttpPut("{id}/activate")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> ActivateDocument(int id)
+        {
+            var result = await _documentService.ActivateDocumentAsync(id);
+
+            if (!result)
+            {
+                return NotFound("Tài liệu không tồn tại hoặc đã đang hoạt động.");
+            }
+
+            return Ok("Tài liệu đã được kích hoạt.");
+        }
+
+        [HttpGet("inactive")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> GetInactiveDocuments()
+        {
+            var inactiveDocuments = await _documentService.GetInactiveDocumentsAsync();
+
+            if (!inactiveDocuments.Any())
+            {
+                return NotFound("Không có tài liệu nào bị vô hiệu hóa.");
+            }
+
+            var documentDtos = inactiveDocuments.Select(d => d.ToDocumentDTO()).ToList();
+            return Ok(documentDtos);
         }
     }
 }

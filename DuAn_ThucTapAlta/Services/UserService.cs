@@ -60,12 +60,12 @@ namespace DuAn_ThucTapAlta.Services
 
         public async Task<User> GetUserByIdAsync(int id)
         {
-            return await _context.Users.FirstOrDefaultAsync(s => s.UserId == id);
+            return await _context.Users.FirstOrDefaultAsync(s => s.UserId == id && s.IsActive);
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Where(u => u.IsActive).ToListAsync();
         }
 
         public async Task<User> CreateUserAsync(User user)
@@ -80,7 +80,7 @@ namespace DuAn_ThucTapAlta.Services
 
         public async Task<User> UpdateUserAsync(int id, UpdateUserRequestDTO updateDto)
         {
-            var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id && x.IsActive);
 
             if (existingUser == null)
             {
@@ -88,29 +88,46 @@ namespace DuAn_ThucTapAlta.Services
             }
 
             existingUser.Email = updateDto.Email;
-            existingUser.PassWord = updateDto.PassWord;
+            existingUser.PassWord = HashPassword(updateDto.PassWord);
 
             await _context.SaveChangesAsync();
             return existingUser;
         }
 
-        public async Task<bool> DeleteUserAsync(int id)
+
+        public async Task<bool> DeactivateUserAsync(int id)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
             if (user == null)
             {
                 return false;
             }
-            _context.Users.Remove(user);
+
+            // Cập nhật trạng thái thành không hoạt động
+            user.IsActive = false;
             await _context.SaveChangesAsync();
             return true;
         }
 
-        //kiem tra email dung dinh dang @vietjetair.com
-        public bool ValidateEmailDomain(string email)
+        public async Task<bool> ActivateUserAsync(int id)
         {
-            string pattern = @"^[a-zA-Z0-9._%+-]+@vietjetair\.com$";
-            return Regex.IsMatch(email, pattern);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
+            if (user == null || user.IsActive)
+            {
+                return false;
+            }
+
+            user.IsActive = true;
+            await _context.SaveChangesAsync();
+            return true;
         }
+
+        public async Task<IEnumerable<User>> GetInactiveUsersAsync()
+        {
+            return await _context.Users
+                                 .Where(u => !u.IsActive)
+                                 .ToListAsync();
+        }
+
     }
 }

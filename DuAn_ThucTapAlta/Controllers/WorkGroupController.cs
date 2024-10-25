@@ -5,6 +5,7 @@ using DuAn_ThucTapAlta.Models;
 using DuAn_ThucTapAlta.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace DuAn_ThucTapAlta.Controllers
@@ -23,7 +24,6 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize]
         [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> GetWorkGroup(int id)
         {
@@ -43,7 +43,6 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> GetAllWorkGroups()
         {
@@ -60,7 +59,6 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> CreateWorkGroup([FromBody] CreateWorkGroupRequestDTO workGroupDto)
         {
@@ -74,7 +72,10 @@ namespace DuAn_ThucTapAlta.Controllers
                 return BadRequest("Group không hợp lệ!");
             }
 
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
             var workGroupModel = workGroupDto.ToWorkGroupFromCreateDTO();
+            workGroupModel.CreatedBy = userId;
 
             await _workGroupService.CreateWorkGroupAsync(workGroupModel);
 
@@ -82,7 +83,6 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize]
         [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> UpdateWorkGroup(int id, [FromBody] UpdateWorkGroupRequestDTO updateDto)
         {
@@ -102,10 +102,27 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
         [Authorize(Roles = "Admin,Pilot,Manager, Stewardess")]
         public async Task<IActionResult> DeleteWorkGroup(int id)
         {
+            // Lấy thông tin nhóm từ cơ sở dữ liệu
+            var workGroup = await _workGroupService.GetWorkGroupByIdAsync(id);
+
+            if (workGroup == null)
+            {
+                return NotFound("Group không tồn tại.");
+            }
+
+            // Lấy ID người dùng hiện tại từ token
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            // Kiểm tra xem người dùng hiện tại có phải là người tạo nhóm không
+            if (workGroup.CreatedBy != userId)
+            {
+                return Forbid("Bạn không có quyền xóa Group này vì bạn không phải là người tạo.");
+            }
+
+            // Xóa group
             var isDeleted = await _workGroupService.DeleteWorkGroupAsync(id);
 
             if (!isDeleted)

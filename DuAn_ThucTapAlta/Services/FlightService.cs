@@ -50,16 +50,37 @@ namespace DuAn_ThucTapAlta.Services
             return existingFlight;
         }
 
-        public async Task<bool> DeleteFlightAsync(int id)
+        public async Task<bool> DeactivateFlightAsync(int id)
         {
-            var flight = await _context.Flights.FindAsync(id);
+            var flight = await _context.Flights.FirstOrDefaultAsync(x => x.FlightId == id);
             if (flight == null)
             {
                 return false;
             }
-            _context.Flights.Remove(flight);
+
+            flight.IsActive = false;
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> ActivateFlightAsync(int id)
+        {
+            var flight = await _context.Flights.FirstOrDefaultAsync(x => x.FlightId == id);
+            if (flight == null || flight.IsActive)
+            {
+                return false;
+            }
+
+            flight.IsActive = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<Flight>> GetInactiveFlightsAsync()
+        {
+            return await _context.Flights
+                                 .Where(f => !f.IsActive)
+                                 .ToListAsync();
         }
     }
 }

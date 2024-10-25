@@ -98,17 +98,47 @@ namespace DuAn_ThucTapAlta.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,Pilot,Manager")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteFlight(int id)
         {
-            var isDeleted = await _flightService.DeleteFlightAsync(id);
+            var result = await _flightService.DeactivateFlightAsync(id);
 
-            if (!isDeleted)
+            if (!result)
             {
-                return NotFound("Chuyến bay không tồn tại.");
+                return NotFound("Chuyến bay không tồn tại hoặc đã bị vô hiệu hóa.");
             }
 
-            return NoContent();
+            return Ok("Chuyến bay đã được vô hiệu hóa.");
         }
+
+        [HttpPut("{id}/activate")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> ActivateFlight(int id)
+        {
+            var result = await _flightService.ActivateFlightAsync(id);
+
+            if (!result)
+            {
+                return NotFound("Chuyến bay không tồn tại hoặc đã đang hoạt động.");
+            }
+
+            return Ok("Chuyến bay đã được kích hoạt.");
+        }
+
+        [HttpGet("inactive")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> GetInactiveFlights()
+        {
+            var inactiveFlights = await _flightService.GetInactiveFlightsAsync();
+
+            if (!inactiveFlights.Any())
+            {
+                return NotFound("Không có chuyến bay nào bị vô hiệu hóa.");
+            }
+
+            var flightDtos = inactiveFlights.Select(f => f.ToFlightDTO()).ToList();
+            return Ok(flightDtos);
+        }
+
     }
 }

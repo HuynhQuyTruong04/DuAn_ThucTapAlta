@@ -11,6 +11,8 @@ namespace DuAn_ThucTapAlta.Services
         Task<IEnumerable<Document>> GetAllDocumentsAsync();
         Task<Document> CreateDocumentAsync(Document document);
         Task<Document> UpdateDocumentAsync(int id, UpdateDocumentRequestDTO updateDto);
-        Task<bool> DeleteDocumentAsync(int documentId);
+        Task<bool> DeactivateDocumentAsync(int id);
+        Task<bool> ActivateDocumentAsync(int id);
+        Task<IEnumerable<Document>> GetInactiveDocumentsAsync();
     }
 }
